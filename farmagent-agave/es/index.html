@@ -234,6 +234,62 @@
 .reveal .progress { background: rgba(0,110,167,0.2); }
 .reveal .progress span { background: var(--green); }
 .reveal .controls button { color: var(--blue); }
+
+/* ── Mobile Responsive (max-width: 768px) ─────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Typography scale-down */
+  .cover-headline   { font-size: 36px !important; }
+  .cover-sub        { font-size: 15px !important; }
+  .divider-headline { font-size: 30px !important; }
+  .divider-ghost    { font-size: 90px !important; left: 20px !important; }
+  .slide-h1         { font-size: 21px !important; }
+  .slide-body       { font-size: 14px !important; }
+  .bullet-list li   { font-size: 13px !important; }
+  .callout          { font-size: 13px !important; padding: 10px 14px !important; }
+  .stat-number      { font-size: 38px !important; }
+  .stat-label       { font-size: 11px !important; }
+  .chat-q, .chat-a  { font-size: 12px !important; }
+  .cover-tag        { font-size: 11px !important; }
+  .brain-card-title { font-size: 15px !important; }
+  .brain-card-body, .brain-card-q { font-size: 12px !important; }
+  .module-name      { font-size: 14px !important; }
+  .module-desc      { font-size: 12px !important; }
+  .pricing-name     { font-size: 16px !important; }
+  .pricing-features li { font-size: 12px !important; }
+  .slide-footer     { font-size: 10px !important; bottom: 8px !important; }
+
+  /* Padding & spacing */
+  .slide-inner      { padding: 36px 20px 56px !important; }
+  .cover-content    { padding: 36px 20px !important; }
+  .cover-footer     { left: 20px !important; right: 20px !important; }
+
+  /* Collapse ALL multi-column grids to single column */
+  .two-col          { grid-template-columns: 1fr !important; gap: 20px !important; }
+  .col-visual       { display: none !important; }   /* text-first on mobile */
+  .stat-grid        { grid-template-columns: 1fr 1fr !important; gap: 16px !important; }
+  .pricing-grid     { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .pricing-card.featured { transform: none !important; }
+  .module-grid      { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .brain-grid       { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .compliance-grid  { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .cover-rule       { margin: 14px 0 16px !important; }
+
+  /* Language badge — smaller, won't overlap controls */
+  #lang-badge {
+    top: 8px !important; right: 8px !important;
+    padding: 4px 10px !important; font-size: 11px !important;
+    gap: 6px !important;
+  }
+}
+
+/* Narrow phones (375px) — extra squeeze */
+@media (max-width: 420px) {
+  .cover-headline   { font-size: 28px !important; }
+  .divider-headline { font-size: 24px !important; }
+  .slide-h1         { font-size: 18px !important; }
+  .stat-grid        { grid-template-columns: 1fr !important; }
+}
+
 </style>
 
 </head>
