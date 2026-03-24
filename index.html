@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FarmAgent · Agave Edition</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+  <link rel="stylesheet" href="deck.css" />
+  <style>
+    /* ── Photo panel placeholders ─────────────────── */
+    .photo-panel {
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--glow-b);
+      width: 100%; position: relative;
+    }
+    .photo-bg {
+      width: 100%; background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+      padding: 20px; box-sizing: border-box;
+    }
+    .photo-label {
+      font-size: 0.42em; color: var(--grey-m);
+      text-align: center; font-style: italic;
+      font-family: 'Work Sans', sans-serif;
+      max-width: 220px; line-height: 1.4;
+    }
+    .photo-icon { font-size: 1.8em; opacity: 0.4; }
+
+    /* ── Split panel ─────────────────────────────── */
+    .split-panel { display: flex; gap: 10px; width: 100%; }
+    .split-panel .photo-panel { flex: 1; }
+
+    /* ── Conversation bubbles (Personal Agent) ───── */
+    .chat-wrap { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .chat-q, .chat-a {
+      padding: 10px 14px; border-radius: 10px;
+      font-size: 0.58em; line-height: 1.5;
+      font-family: 'Work Sans', sans-serif;
+    }
+    .chat-q {
+      background: var(--surface2); color: var(--text2);
+      border-left: 2px solid var(--grey-m);
+      font-style: italic;
+    }
+    .chat-a {
+      background: var(--surface); color: var(--text);
+      border-left: 2px solid var(--green);
+      margin-left: 20px;
+    }
+
+    /* ── Big photo background slide ──────────────── */
+    .photo-slide-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(145deg, #0a1420 0%, #0f2235 100%);
+      z-index: 0;
+    }
+    .photo-slide-bg .aerial-texture {
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(164,202,103,0.03) 28px, rgba(164,202,103,0.03) 29px),
+        repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(0,110,167,0.03) 28px, rgba(0,110,167,0.03) 29px);
+    }
+    /* Cover specific — blindness version dark */
+    .photo-slide-bg.dark-bg { background: linear-gradient(145deg, #040a10 0%, #060e18 100%); }
+    /* Solution version — clearer */
+    .photo-slide-bg.clear-bg { background: linear-gradient(145deg, #0d1f0f 0%, #0a2030 100%); }
+
+    /* ── Module row (add-ons table) ──────────────── */
+    .module-row {
+      display: flex; align-items: flex-start; gap: 16px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .module-row:last-child { border-bottom: none; }
+    .module-row-name {
+      font-family: 'Work Sans', sans-serif; font-weight: 600;
+      font-size: 0.62em; color: var(--text); min-width: 160px;
+      white-space: nowrap;
+    }
+    .module-row-desc {
+      font-size: 0.6em; color: var(--text2); line-height: 1.5;
+    }
+
+    /* ── Pillar table ────────────────────────────── */
+    .pillar-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .pillar-table th {
+      font-family: 'Work Sans', sans-serif; font-size: 0.52em;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--grey-m); padding: 8px 12px; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .pillar-table td {
+      font-size: 0.6em; padding: 10px 12px; vertical-align: top;
+      color: var(--text2); border-bottom: 1px solid rgba(30,51,71,0.5);
+    }
+    .pillar-table td:first-child { color: var(--text); font-weight: 600; }
+    .pillar-table td:last-child { color: var(--grey-l); font-size: 0.92em; }
+
+    /* ── Big ROI stats (By the Numbers) ──────────── */
+    .roi-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    .roi-table tr { border-bottom: 1px solid var(--border); }
+    .roi-table td { padding: 11px 4px; font-size: 0.62em; vertical-align: middle; }
+    .roi-table td:first-child { color: var(--text2); width: 66%; }
+    .roi-table td:nth-child(2) { font-family: 'Raleway',sans-serif; font-weight: 600; font-size: 1.15em; white-space: nowrap; padding: 0 12px; }
+    .roi-table td:last-child { color: var(--grey-m); font-size: 0.85em; white-space: nowrap; }
+    .roi-gold { color: var(--gold); }
+    .roi-green { color: var(--green); }
+    .roi-blue  { color: var(--blue-b); }
+
+    /* ── Seven-year timeline ─────────────────────── */
+    .timeline { display: flex; margin-top: 28px; position: relative; }
+    .timeline::before {
+      content: ''; position: absolute;
+      top: 22px; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+    }
+    .yr-block { flex: 1; text-align: center; position: relative; padding-top: 44px; }
+    .yr-dot {
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--surface); border: 2px solid var(--border);
+      z-index: 2;
+    }
+    .yr-dot.harvest { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 10px rgba(210,168,68,0.5); }
+    .yr-dot.measure { background: var(--green); border-color: var(--green); }
+    .yr-label { font-family: 'Raleway',sans-serif; font-size: 0.55em; font-weight: 700; color: var(--text2); margin-bottom: 4px; }
+    .yr-phase { font-size: 0.46em; color: var(--grey-m); line-height: 1.35; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 1 · COVER
+     ──────────────────────────────────────────────────── -->
+<section class="slide-cover glow-orb" data-transition="fade">
+  <div class="photo-slide-bg" style="background:url('../images/deck_aerial_dark.png') center/cover no-repeat;"><div class="aerial-texture" style="background:rgba(4,10,16,0.62);"></div></div>
+  <div class="cover-inner" style="background:linear-gradient(155deg,rgba(4,10,16,0.94) 40%,rgba(0,110,167,0.22) 100%); gap:0;">
+    <div class="cover-logo-wrap">
+      <span style="font-family:'Raleway',sans-serif;font-size:0.72em;font-weight:700;color:var(--blue-b);letter-spacing:0.06em;">FRUITSCOUT</span>
+    </div>
+    <div class="cover-tag">The Intelligent Farm OS · Agave Edition</div>
+    <h1 class="cover-title">Seven years.<br>Managed blind.<br><span style="color:var(--green)">Not anymore.</span></h1>
+    <p class="cover-sub">FarmAgent gives agave producers the eyes, the intelligence, and the operating system to see exactly what is happening across their estate — and act on it before it costs them a harvest.</p>
+    <div class="footer-bar"></div>
+    <div style="position:absolute;bottom:20px;left:80px;font-size:0.38em;color:var(--grey-m);font-family:'Work Sans',sans-serif;">FruitScout · FarmAgent · Confidential</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 2 · SECTION DIVIDER — THE PROBLEM
+     ──────────────────────────────────────────────────── -->
+<section class="slide-divider glow-orb" data-transition="zoom">
+  <div class="photo-slide-bg" style="background:url('../images/deck_aerial_dark.png') center/cover no-repeat;"><div class="aerial-texture" style="background:rgba(4,10,16,0.72);"></div></div>
+  <div class="divider-inner" style="position:relative;z-index:2;">
+    <div class="divider-num">01 — The Problem</div>
+    <h1 class="divider-title">Agave farming<br>is a <span class="accent">7-year</span><br>blind bet.</h1>
+    <div class="footer-bar"></div>
+  </div>
+  <div class="section-ghost">01</div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 3 · THE PROBLEM — DETAIL
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag">The Problem</div>
+    <h2>The Most Expensive Crop in the World<br>— Still Managed on Paper</h2>
+    <span class="rule"></span>
+    <div class="two-col">
+      <div class="col-left">
+        <p style="margin-bottom:14px;font-size:0.72em;">A Blue Weber agave estate is a 7-year illiquid investment. Every undetected mortality event, every premature harvest, every poorly executed Jima cut compounds in silence — often for years before the damage appears on the P&L.</p>
+        <ul style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+          <li><strong>Mortality Bleed</strong> — Paper ledgers claim 40,000 plants. A drone survey reveals 36,200. The gap has been silently growing since Year 2.</li>
+          <li><strong>No production visibility</strong> — Monthly biomass accumulation is invisible. Distillery contracts are signed on gut-feel.</li>
+          <li><strong>Jima quality variance</strong> — Cut quality determines ART sugar content. Most operations have no system to measure it.</li>
+          <li><strong>Reactive management</strong> — Problems discovered on walkabouts. By the time action is taken, the intervention window has closed.</li>
+        </ul>
+      </div>
+      <div class="col-right" style="flex-direction:column;gap:16px;">
+        <div class="photo-panel">
+          <img src="../images/deck_jima_cut.png" alt="Agave field with mortality gap" style="width:100%;border-radius:12px;display:block;border:1px solid var(--border);" />
+        </div>
+        <div class="roi-callout" style="margin-top:0;">
+          A 100-ha estate with 10% undetected mortality over 5 years loses approximately <strong style="color:var(--gold);font-size:1.2em;">$148,500</strong> in unrecoverable revenue — while the paper ledger reports no problem.
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 4 · SECTION DIVIDER — THE SOLUTION
+     ──────────────────────────────────────────────────── -->
+<section class="slide-divider glow-orb-green" data-transition="zoom">
+  <div class="photo-slide-bg" style="background:url('../images/deck_aerial_bright.png') center/cover no-repeat;"><div class="aerial-texture" style="background:rgba(6,14,10,0.45);"></div></div>
+  <div class="divider-inner" style="position:relative;z-index:2;">
+    <div class="divider-num">02 — The Solution</div>
+    <h1 class="divider-title">Now you can<br><span class="accent">see everything.</span></h1>
+    <div class="footer-bar"></div>
+  </div>
+  <div class="section-ghost">02</div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 5 · FARMAGENT OVERVIEW
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark glow-orb" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag">FarmAgent Platform</div>
+    <h2>Sight Across the Entire Operation</h2>
+    <span class="rule rule-green"></span>
+    <div class="two-col">
+      <div class="col-left">
+        <p style="font-size:0.72em;margin-bottom:16px;">FarmAgent is not a farm app. It is a layered intelligence platform that replaces operational blindness with complete visibility — from 120 metres in the air to the screen in a Jima worker's hand.</p>
+        <ul style="display:flex;flex-direction:column;gap:9px;">
+          <li><strong>Aerial Sight</strong> — Computer vision on drones counts every living plant, maps every gap, flags every block in decline.</li>
+          <li><strong>Ground Sight</strong> — Smartphones measure production, size, and location with instrument-grade precision.</li>
+          <li><strong>Operational Sight</strong> — The Central Brain sees goals, resources, processes, and plans simultaneously.</li>
+          <li><strong>Longitudinal Sight</strong> — Farm Brain sees across seasons, surfacing patterns no single year reveals.</li>
+        </ul>
+        <div class="roi-callout" style="margin-top:20px">FarmAgent turns a 7-year blind wait into a <strong>deterministic, auditable supply chain.</strong></div>
+      </div>
+      <div class="col-right">
+        <div class="img-panel">
+          <img src="../images/farmagent_product_stack.png" alt="FarmAgent Product Stack" />
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 6 · SECTION DIVIDER — THE PLATFORM
+     ──────────────────────────────────────────────────── -->
+<section class="slide-divider glow-orb" data-transition="zoom">
+  <div class="photo-slide-bg" style="background:url('../images/deck_aerial_dark.png') center/cover no-repeat;"><div class="aerial-texture" style="background:rgba(4,10,16,0.65);"></div></div>
+  <div class="divider-inner" style="position:relative;z-index:2;">
+    <div class="divider-num">03 — The Platform</div>
+    <h1 class="divider-title">Eyes in the sky.<br><span class="accent">Eyes in every hand.</span></h1>
+    <div class="footer-bar"></div>
+  </div>
+  <div class="section-ghost">03</div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 7 · AERIAL INTELLIGENCE
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag">Technology Core · Aerial Intelligence</div>
+    <h2>Know Exactly What You Have — From 120 Metres Up</h2>
+    <span class="rule"></span>
+    <div class="two-col">
+      <div class="col-left">
+        <p style="font-size:0.68em;font-weight:600;color:var(--text);margin-bottom:6px;">Advanced Inventory</p>
+        <ul style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <li>Object recognition identifies every living plant across multi-hectare blocks from drone imagery, cross-referencing the prior year's spatial map.</li>
+          <li>Calculates the exact <strong>Mortality Bleed Rate</strong> — the gap between what your ledger says exists and what is biologically alive.</li>
+          <li>Every missing plant GPS-tagged and queued as a replanting opportunity — no manual flagging.</li>
+          <li>Year-over-year canopy comparison flags plants with declining vigor before losses are irreversible.</li>
+        </ul>
+        <p style="font-size:0.68em;font-weight:600;color:var(--text);margin-bottom:6px;">Targeted Scouting</p>
+        <ul style="display:flex;flex-direction:column;gap:8px;">
+          <li>AI generates GPS waypoint routes sending scouts only to locations that need attention. Blanket scouting eliminated.</li>
+          <li><strong style="color:var(--green);">40–60% scouting labor reduction</strong> on large estates.</li>
+        </ul>
+      </div>
+      <div class="col-right">
+        <div class="photo-panel">
+          <img src="../images/deck_drone_survey.png" alt="Drone aerial with GPS markers" style="width:100%;border-radius:12px;display:block;border:1px solid var(--border);box-shadow:var(--glow-b);" />
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 8 · FIELD AGENT
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark glow-orb-green" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag">Technology Core · Field Agent</div>
+    <h2>The Guide That Walks Every Worker Through Their Day — and Sees What They See</h2>
+    <span class="rule rule-green"></span>
+    <div class="two-col">
+      <div class="col-left">
+        <p style="font-size:0.68em;font-weight:600;color:var(--text);margin-bottom:6px;">Guided Work Tickets</p>
+        <ul style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
+          <li>Every field task dispatched as a digital work ticket: GPS block boundary, exact step sequence, assigned inputs, timing, and quality criteria.</li>
+          <li>Large, clear instruction cards, photo prompts, and confirmation checkpoints — no training required, no radio briefing.</li>
+          <li><strong>Offline-first</strong> — full task syncs before the shift. Works in areas with zero signal.</li>
+        </ul>
+        <p style="font-size:0.68em;font-weight:600;color:var(--text);margin-bottom:6px;">Computer Vision Built Into the Workflow</p>
+        <ul style="display:flex;flex-direction:column;gap:7px;">
+          <li>Jima crew: photograph the cut → computer vision grades A, B, or C before the worker moves to the next plant.</li>
+          <li>Field worker: photograph a rain-flooded road blocking Block 4 → FarmAgent marks it impassable and <strong>reroutes the harvest convoy before a single truck leaves the yard.</strong></li>
+          <li>Spray crew: photograph the team at task start → PPE class verified before the task unlocks.</li>
+        </ul>
+      </div>
+      <div class="col-right">
+        <div class="split-panel" style="flex-direction:column;gap:10px;">
+          <div class="photo-panel">
+            <img src="../images/deck_muddy_road.png" alt="Worker photographing flooded road" style="width:100%;border-radius:12px 12px 0 0;display:block;" />
+          </div>
+          <div class="photo-panel">
+            <img src="../images/deck_reroute_map.png" alt="Rerouted harvest truck map" style="width:100%;border-radius:0 0 12px 12px;display:block;" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 9 · PRECISION MEASUREMENT
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag">Technology Core · Visual Sensor Suite</div>
+    <h2>Measurements, Not Estimates — From Every Smartphone on the Estate</h2>
+    <span class="rule"></span>
+    <div class="two-col">
+      <div class="col-left">
+        <ul style="display:flex;flex-direction:column;gap:0;">
+          <li style="padding:10px 0;border-bottom:1px solid var(--border);">
+            <strong>Visual Scale — Monthly Production</strong><br>
+            <span style="font-size:0.9em;">AI converts smartphone imagery into volumetric mass estimates — no weighbridge required. Updated monthly, block by block: the <em>heartbeat of the business.</em> Distillery commitments backed by a number, not a feeling.</span>
+          </li>
+          <li style="padding:10px 0;border-bottom:1px solid var(--border);">
+            <strong>Visual Calipers — Precision Sizing</strong><br>
+            <span style="font-size:0.9em;">A reference card establishes exact scale in every photo. AI returns millimeter-accurate readings in under 10 seconds. <strong style="color:var(--green);">40–60 plants/hour</strong> vs. 8–12 with physical calipers.</span>
+          </li>
+          <li style="padding:10px 0;">
+            <strong>Visual Localizer — GPS Anomaly Tagging</strong><br>
+            <span style="font-size:0.9em;">Tag a diseased plant or mortality gap in Field Agent. The pin appears on every crew member's map within seconds — observation becomes dispatched action.</span>
+          </li>
+        </ul>
+      </div>
+      <div class="col-right">
+        <div class="photo-panel">
+          <div class="photo-bg" style="height:320px;background:linear-gradient(145deg,#0a1210,#081018);">
+            <div class="photo-icon">📐</div>
+            <div class="photo-label">Visual Scale reference card against a piña — phone at edge of frame; farm GPS map below showing clustered pins</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 10 · THE CENTRAL BRAIN
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark glow-orb" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag">Technology Core · Operating System</div>
+    <h2>Total Operational Sight — Four Pillars, One System</h2>
+    <span class="rule"></span>
+    <p style="font-size:0.72em;margin:10px 0 6px;">Every AI recommendation is bounded by four real-world pillars before it is actioned. The AI cannot prescribe resources that don't exist, violate approved processes, or act against your stated financial goals.</p>
+    <table class="pillar-table">
+      <tr>
+        <th>Pillar</th><th>Question it answers</th><th>What it governs</th>
+      </tr>
+      <tr><td>Goal Management</td><td>What are we trying to achieve?</td><td>Financial targets, tonnage KPIs, quality thresholds</td></tr>
+      <tr><td>Resource Management</td><td>What do we have?</td><td>Labor, equipment, biological inventory</td></tr>
+      <tr><td>Process Management</td><td>How should it be done?</td><td>SOPs, labor rates, chemical dosages, timings</td></tr>
+      <tr><td>Plan Management</td><td>When and in what sequence?</td><td>The 7-year agave lifecycle, dynamically sequenced</td></tr>
+    </table>
+    <div class="roi-callout" style="margin-top:16px;">The Guardrail Engine: this is what makes FarmAgent <strong>operationally trustworthy</strong> — not just impressive in a demo.</div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 11 · THE 7-YEAR GROWTH PLAN
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag">Technology Core · Plan Management</div>
+    <h2>The Entire Lifecycle — One Orchestrated Plan</h2>
+    <span class="rule rule-green"></span>
+    <div class="timeline">
+      <div class="yr-block"><div class="yr-dot measure"></div><div class="yr-label">Yr 1–2</div><div class="yr-phase">Planting &amp;<br>Establishment</div></div>
+      <div class="yr-block"><div class="yr-dot measure"></div><div class="yr-label">Yr 2–3</div><div class="yr-phase">Monthly<br>Production Pulse</div></div>
+      <div class="yr-block"><div class="yr-dot measure"></div><div class="yr-label">Yr 3–4</div><div class="yr-phase">Cohort<br>Sequencing</div></div>
+      <div class="yr-block"><div class="yr-dot measure"></div><div class="yr-label">Yr 4–5</div><div class="yr-phase">Supply Contract<br>Forecasting</div></div>
+      <div class="yr-block"><div class="yr-dot measure"></div><div class="yr-label">Yr 5–6</div><div class="yr-phase">Jima Readiness<br>Assessment</div></div>
+      <div class="yr-block"><div class="yr-dot harvest"></div><div class="yr-label">Yr 6–7</div><div class="yr-phase">Terminal Jima &amp;<br>Replanting Queue</div></div>
+    </div>
+    <ul style="display:flex;flex-direction:column;gap:8px;margin-top:20px;">
+      <li><strong>Cohort sequencing</strong> — Slow-growth blocks harvested first, freeing space for new cohorts while fast-compounding blocks keep accumulating biomass.</li>
+      <li><strong>Dynamic replanning</strong> — A mortality event or contract change triggers automatic plan revision in real time.</li>
+      <li><strong>Replanting windows</strong> — Mortality in Year 1–2: same cohort. Year 5: permanent loss. FarmAgent flags the distinction explicitly.</li>
+    </ul>
+    <div class="roi-callout" style="margin-top:14px;">"Most agave operations make a new plan every year. FarmAgent runs one plan across 7 years — and updates it every time the biology changes."</div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 12 · JIMA QUALITY
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark glow-orb-green" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag addon">Add-On Module · Photographic QA</div>
+    <h2>Grade Every Cut. At Scale. In Real Time.</h2>
+    <span class="rule rule-green"></span>
+    <div class="two-col">
+      <div class="col-left">
+        <p style="font-size:0.7em;margin-bottom:10px;">An A-Grade Jima cut delivers <strong>15–22% higher ART sugar content</strong> than a C-Grade cut. FarmAgent grades every cut at full workforce scale — built into the Jima work ticket in the Field Agent app.</p>
+        <ol style="font-size:0.67em;color:var(--text2);line-height:1.7;padding-left:18px;margin:0;">
+          <li>Field Agent prompts the Jima worker to photograph the completed cut.</li>
+          <li>Computer vision grades A, B, or C — cut angle, stub length, leaf trim, piña integrity — and returns the result <em>before the worker moves on.</em></li>
+          <li>Sub-standard cuts flag instantly in the Manager Hub QA Inbox — sorted by risk.</li>
+          <li>One tap to confirm → rework ticket dispatched to the crew leader with the photo attached. The crew stays until it's resolved.</li>
+        </ol>
+        <div class="roi-callout" style="margin-top:16px;">Moving 100 ha from <strong>55% → 82% A-Grade</strong>:<br><span style="color:var(--gold);font-size:1.3em;font-weight:600;">$68,000–$113,000 USD</span> recovered per harvest season.</div>
+      </div>
+      <div class="col-right">
+        <div class="split-panel" style="flex-direction:column;gap:10px;">
+        <div class="photo-panel">
+          <img src="../images/deck_jima_cut.png" alt="Freshly cut agave piña" style="width:100%;border-radius:12px 12px 0 0;display:block;border:1px solid var(--border);" />
+        </div>
+        <div class="photo-panel">
+          <img src="../images/deck_drone_survey.png" alt="Field Agent QA screen" style="width:100%;border-radius:0 0 12px 12px;display:block;border:1px solid var(--border);" />
+        </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 13 · FARM BRAIN
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark glow-orb" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag">Technology Core · Learning Engine</div>
+    <h2>Farm Brain™ — The Operation Gets Smarter Every Season</h2>
+    <span class="rule"></span>
+    <div class="two-col">
+      <div class="col-left">
+        <p style="font-size:0.72em;margin-bottom:14px;">Where the Central Brain gives sight of <em>today</em>, Farm Brain gives sight across <em>time</em> — absorbing agronomic expertise, historical execution telemetry, and commercial intelligence into a continuously improving reasoning engine.</p>
+        <ul style="display:flex;flex-direction:column;gap:10px;">
+          <li><strong>Agave Intelligence Corpus</strong> — Blue Weber growth curves, ART accumulation models, weevil pressure cycles, and regional mortality benchmarks embedded in every AI decision.</li>
+          <li><strong>Continual Improvement</strong> — Lean/Kaizen applied to farm operations. Farm Brain surfaces cost reduction opportunities from your own estate's execution data.</li>
+          <li><strong>Business Intelligence</strong> — COGS modeling, distillery contract structuring, and multi-cohort capital planning grounded in commercial agave economics.</li>
+        </ul>
+      </div>
+      <div class="col-right">
+        <div class="photo-panel">
+          <img src="../images/deck_aerial_bright.png" alt="Estate overview" style="width:100%;border-radius:12px;display:block;border:1px solid var(--border);" />
+        </div>
+        <p style="font-size:0.52em;color:var(--grey-m);margin-top:12px;font-style:italic;">By Year 3, the system is reasoning with 3 years of your estate's own telemetry. This is what makes it progressively harder to displace.</p>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 14 · SECTION DIVIDER — INTELLIGENCE MODULES
+     ──────────────────────────────────────────────────── -->
+<section class="slide-divider glow-orb" data-transition="zoom">
+  <div class="photo-slide-bg" style="background:url('../images/deck_aerial_dark.png') center/cover no-repeat;"><div class="aerial-texture" style="background:rgba(4,10,16,0.72);"></div></div>
+  <div class="divider-inner" style="position:relative;z-index:2;">
+    <div class="divider-num">04 — Intelligence Modules</div>
+    <h1 class="divider-title">Extend the sight to<br><span class="accent">every corner</span><br>of the operation.</h1>
+    <div class="footer-bar"></div>
+  </div>
+  <div class="section-ghost">04</div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 15 · PERSONAL AGENT
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark glow-orb-green" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag addon">Add-On Module · Personal Agent</div>
+    <h2>You Talk to It Like You Talk to Any Other Teammate</h2>
+    <span class="rule rule-green"></span>
+    <div class="two-col">
+      <div class="col-left">
+        <p style="font-size:0.7em;margin-bottom:12px;">Every drone count, every tonnage forecast, every Jima quality score, every plan milestone — accessible through a single conversation. In Spanish or English, with your actual field numbers behind every answer.</p>
+        <div class="chat-wrap">
+          <div class="chat-q">"How is Block 7 tracking against the 7-year plan?"</div>
+          <div class="chat-a">Block 7 is in Year 4 and tracking 11% behind the biomass curve. It's a candidate for early harvest sequencing. Want me to model what that does to the 2027 cohort?</div>
+          <div class="chat-q">"Which crews are behind on Jima quality this week?"</div>
+          <div class="chat-a">Crew C: 61% A-Grade vs. the 80% target across 847 cuts yesterday. Crew Leader: Rodrigo Vázquez. Want me to flag this to his supervisor?</div>
+          <div class="chat-q">"Are we on track for the Q3 distillery commitment?"</div>
+          <div class="chat-a">Committed: 1,840 t. Current forecast: 1,710 t — 7% short. Window closes in 9 weeks. I can draft a revised delivery schedule or recommend blocks to accelerate.</div>
+        </div>
+      </div>
+      <div class="col-right">
+        <div class="photo-panel">
+          <img src="../images/deck_personal_agent.png" alt="FarmAgent chat interface on tablet" style="width:100%;border-radius:12px;display:block;border:1px solid var(--border);box-shadow:var(--glow-g);" />
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 16 · ADD-ON MODULES
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag addon">Add-On Modules</div>
+    <h2>Specialist AI Agents — Activated When You're Ready</h2>
+    <span class="rule"></span>
+    <div style="margin-top:8px;display:flex;flex-direction:column;">
+      <div class="module-row">
+        <div class="module-row-name">⚙️ &nbsp;Kaizen Engine</div>
+        <div class="module-row-desc">Autonomous Continual Improvement — hunts inefficiency in your execution data and surfaces ranked OPEX reduction opportunities with dollar impact estimates.</div>
+      </div>
+      <div class="module-row">
+        <div class="module-row-name">🧠 &nbsp;The Strategist</div>
+        <div class="module-row-desc">Board-level scenario modeling: harvest timing trade-offs, supply contract risk, multi-cohort capital planning, COGS benchmarking.</div>
+      </div>
+      <div class="module-row">
+        <div class="module-row-name">🚜 &nbsp;Fleet Command</div>
+        <div class="module-row-desc">AI-optimized machine routing, predictive maintenance, real-time telematics for every tractor, drone, and transport vehicle.</div>
+      </div>
+      <div class="module-row">
+        <div class="module-row-name">🌾 &nbsp;Harvest Command</div>
+        <div class="module-row-desc">AI orchestration for the highest-pressure window of the year: crew sequencing, transport coordination, real-time harvest yield auditing.</div>
+      </div>
+      <div class="module-row">
+        <div class="module-row-name">🔔 &nbsp;Alert Builder</div>
+        <div class="module-row-desc">Define monitoring rules in plain English. Context-aware alerts with AI-generated explanations, routed to the right person at the right level of detail.</div>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 17 · COMPLIANCE
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark glow-orb" data-transition="fade">
+  <div class="content-inner">
+    <div class="module-tag addon">Add-On Module · Security &amp; Compliance</div>
+    <h2>One Failed Shipment Costs More Than the Entire Platform</h2>
+    <span class="rule"></span>
+    <div class="two-col">
+      <div class="col-left">
+        <p style="font-size:0.68em;font-weight:600;color:var(--text);margin-bottom:6px;">Chemical Compliance</p>
+        <ul style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">
+          <li>Real-time depot inventory — lot numbers, expiry dates, authorized applications per crop.</li>
+          <li>Pre-Harvest Interval enforcement: sprays that leave harvest residue blocked at prescription, not discovered at export inspection.</li>
+          <li>Automatic application records. GlobalG.A.P. and SQF audit packages on demand.</li>
+        </ul>
+        <p style="font-size:0.68em;font-weight:600;color:var(--text);margin-bottom:6px;">Worker PPE Compliance</p>
+        <ul style="display:flex;flex-direction:column;gap:7px;">
+          <li>Computer vision verifies correct PPE class before any high-hazard task unlocks in Field Agent.</li>
+          <li>Not presence detection — AI verifies the <em>right</em> PPE for the specific chemical.</li>
+          <li>Full photo-verified record. Complete evidentiary defense for any incident investigation.</li>
+        </ul>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:6px;">
+          <div class="roi-callout" style="border-color:var(--gold);color:var(--gold);">Failed MRL export test: <strong>$80K–$250K+</strong> per container</div>
+          <div class="roi-callout" style="border-color:var(--gold);color:var(--gold);">Worker compensation claim, no PPE records: <strong>$150K–$500K+</strong></div>
+        </div>
+      </div>
+      <div class="col-right" style="flex-direction:column;gap:12px;">
+        <div class="photo-panel">
+          <img src="../images/deck_drone_survey.png" alt="Chemical compliance" style="width:100%;border-radius:12px 12px 0 0;display:block;" />
+        </div>
+        <div class="photo-panel" style="margin-top:10px;">
+          <img src="../images/deck_ppe_worker.png" alt="PPE compliance worker" style="width:100%;border-radius:0 0 12px 12px;display:block;" />
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 18 · SECTION DIVIDER — PRICING
+     ──────────────────────────────────────────────────── -->
+<section class="slide-divider glow-orb" data-transition="zoom">
+  <div class="photo-slide-bg" style="background:url('../images/deck_jima_cut.png') center 30%/cover no-repeat;"><div class="aerial-texture" style="background:rgba(4,10,16,0.70);"></div></div>
+  <div class="divider-inner" style="position:relative;z-index:2;">
+    <div class="divider-num">05 — Packaging</div>
+    <h1 class="divider-title">Pay for what<br><span class="accent">you protect.</span></h1>
+    <div class="footer-bar"></div>
+  </div>
+  <div class="section-ghost">05</div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 19 · PRICING TIERS
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark" data-transition="fade">
+  <div class="content-inner">
+    <h2>Three Tiers. One Platform.</h2>
+    <span class="rule"></span>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">Starter</div>
+        <h3>FarmAgent Starter</h3>
+        <p class="price-feat">Technology Core<br>Central Brain<br>Agave Crop Module<br>Field Agent App</p>
+        <p style="font-size:0.58em;color:var(--grey-m);margin-top:auto;">Producers digitalizing for the first time</p>
+      </div>
+      <div class="price-card featured">
+        <div class="price-tier">Most Popular</div>
+        <h3>FarmAgent Pro</h3>
+        <p class="price-feat">Everything in Starter<br>Farm Brain™<br>Personal Agent<br>Alert Builder</p>
+        <p style="font-size:0.58em;color:rgba(255,255,255,0.65);margin-top:auto;">Established operations ready to optimize</p>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">Enterprise</div>
+        <h3>FarmAgent Enterprise</h3>
+        <p class="price-feat">Everything in Pro<br>Kaizen Engine<br>The Strategist<br>Fleet Command<br>Compliance Suite</p>
+        <p style="font-size:0.58em;color:var(--grey-m);margin-top:auto;">Vertically integrated agribusinesses</p>
+      </div>
+    </div>
+    <p style="font-size:0.6em;color:var(--grey-m);margin-top:16px;text-align:center;">Per-hectare annual subscription · Pay for the hectares you enroll and the modules you activate</p>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 20 · BY THE NUMBERS
+     ──────────────────────────────────────────────────── -->
+<section class="slide-dark glow-orb" data-transition="fade">
+  <div class="content-inner">
+    <h2>The Agave ROI Case — By the Numbers</h2>
+    <span class="rule"></span>
+    <table class="roi-table">
+      <tr>
+        <td>Unrecovered revenue: 10% undetected mortality, 100 ha over 5 years</td>
+        <td class="roi-gold">$148,500</td>
+        <td>Advanced Inventory</td>
+      </tr>
+      <tr>
+        <td>Jima quality uplift: 55% → 82% A-Grade on 100 ha</td>
+        <td class="roi-gold">$68K–$113K<span style="font-size:0.7em;color:var(--grey-m);"> /season</span></td>
+        <td>Photographic QA</td>
+      </tr>
+      <tr>
+        <td>Scouting labor reduction via targeted GPS routing</td>
+        <td class="roi-green">40–60%</td>
+        <td>Targeted Scouting</td>
+      </tr>
+      <tr>
+        <td>Measurement speed: smartphone vs. physical calipers</td>
+        <td class="roi-green">5× faster</td>
+        <td>Visual Calipers</td>
+      </tr>
+      <tr>
+        <td>Time from problem observed to crew dispatched</td>
+        <td class="roi-blue">Hours<span style="font-size:0.7em;color:var(--grey-m);"> vs. days</span></td>
+        <td>Visual Localizer</td>
+      </tr>
+      <tr>
+        <td>Max liability: failed MRL export test per container</td>
+        <td class="roi-gold">$80K–$250K+</td>
+        <td>Chemical Compliance</td>
+      </tr>
+    </table>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────
+     SLIDE 21 · CTA
+     ──────────────────────────────────────────────────── -->
+<section class="slide-cover glow-orb-green" data-transition="fade">
+  <div class="photo-slide-bg" style="background:url('../images/deck_aerial_bright.png') center/cover no-repeat;"><div class="aerial-texture" style="background:rgba(6,18,6,0.52);"></div></div>
+  <div class="cta-inner" style="position:relative;z-index:2;">
+    <h1 style="font-size:2.6em;font-weight:200;line-height:1.15;color:var(--text);">The farms<br>that can <span style="color:var(--green);">see</span><br>will outperform<br>the ones that can't.</h1>
+    <p>FarmAgent is available now. Start with aerial inventory on your existing blocks — see your mortality rate, your replanting window, and your monthly production trajectory in the first 90 days.</p>
+    <a class="cta-btn" href="#">Request a Demo</a>
+    <div class="cta-contact">sales@fruitscout.ai &nbsp;·&nbsp; fruitscout.ai/farmagent</div>
+    <div class="footer-bar"></div>
+  </div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    controls: true,
+    progress: true,
+    slideNumber: 'c/t',
+    transition: 'fade',
+    transitionSpeed: 'default',
+    backgroundTransition: 'fade',
+    width: 1280,
+    height: 720,
+    margin: 0,
+    minScale: 0.2,
+    maxScale: 2.0,
+  });
+</script>
+</body>
+</html>
