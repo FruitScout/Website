@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FarmAgent · Phytosanitary Scouting Demo</title>
+<meta name="description" content="FarmAgent — Mobile-based AI phytosanitary scouting for CRT-compliant agave inspection.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;600;700&family=Work+Sans:wght@300;400;600&display=swap');
+:root{--void:#080E14;--surface:#0D1A26;--raised:#132233;--border:#1E3347;--blue:#006EA7;--blue-b:#0A8FD4;--green:#A4CA67;--green-d:#6E9944;--gold:#D2A844;--tp:#EAF2F8;--ts:#A8BDD0;--tm:#4A6278;--red:#D25444;--amber:#D2A844;--ftitle:'Raleway',sans-serif;--fbody:'Work Sans',sans-serif;}
+.reveal{background:var(--void);}
+.reveal .slides{font-family:var(--fbody);color:var(--tp);}
+.reveal .slides section{height:100%;box-sizing:border-box;}
+.slide-inner{width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;padding:52px 68px 68px;box-sizing:border-box;position:relative;overflow:hidden;}
+.glow-orb::before{content:'';position:absolute;top:-60px;right:-60px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(0,110,167,.18) 0%,transparent 65%);pointer-events:none;}
+.cover-bg{position:absolute;inset:0;background-size:cover;background-position:center;}
+.cover-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(8,14,20,.86) 38%,rgba(0,110,167,.28) 100%);}
+.cover-content{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;height:100%;padding:52px 68px;box-sizing:border-box;}
+.cover-tag{font-family:var(--ftitle);font-weight:300;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--green);margin-bottom:24px;}
+.cover-headline{font-family:var(--ftitle);font-weight:200;font-size:64px;line-height:1.18;color:var(--tp);margin:0 0 8px;}
+.cover-rule{width:70px;height:2px;background:var(--green);margin:18px 0 22px;}
+.cover-sub{font-family:var(--fbody);font-size:17px;color:var(--ts);max-width:580px;line-height:1.65;}
+.cover-footer{position:absolute;bottom:32px;left:68px;right:68px;display:flex;justify-content:space-between;align-items:center;z-index:2;}
+.cover-footer-logo{font-family:var(--ftitle);font-weight:700;font-size:17px;color:var(--blue-b);letter-spacing:.06em;}
+.cover-footer-conf{font-family:var(--fbody);font-size:12px;color:var(--tm);}
+.divider-ghost{position:absolute;left:56px;top:50%;transform:translateY(-55%);font-family:var(--ftitle);font-weight:200;font-size:180px;color:var(--border);line-height:1;pointer-events:none;z-index:0;user-select:none;}
+.divider-content{position:relative;z-index:1;}
+.divider-label{font-family:var(--fbody);font-size:13px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--tm);margin-bottom:14px;}
+.divider-headline{font-family:var(--ftitle);font-weight:700;font-size:52px;line-height:1.2;color:var(--tp);margin:0 0 18px;}
+.divider-headline em{color:var(--green);font-style:normal;}
+.divider-rule{width:56px;height:2px;background:var(--gold);}
+.divider-img{position:absolute;right:0;top:0;bottom:0;width:42%;background-size:cover;background-position:center;mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.9) 30%);-webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.9) 30%);}
+.divider-img::after{content:'';position:absolute;inset:0;background:rgba(8,14,20,.45);}
+.two-col{display:grid;grid-template-columns:55% 45%;gap:44px;height:100%;align-items:center;}
+.col-visual img{width:100%;border-radius:12px;border:1px solid var(--border);box-shadow:0 0 40px rgba(0,110,167,.22);}
+.slide-tag{display:inline-block;font-family:var(--fbody);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--green);background:var(--surface);border:1px solid var(--blue);padding:5px 13px;border-radius:999px;margin-bottom:14px;}
+.slide-h1{font-family:var(--ftitle);font-weight:700;font-size:32px;color:var(--tp);line-height:1.25;margin:0 0 10px;}
+.slide-rule{width:56px;height:2px;background:var(--gold);margin-bottom:18px;}
+.slide-body{font-family:var(--fbody);font-size:15px;color:var(--ts);line-height:1.65;}
+.slide-body p{margin:0 0 10px;}.slide-body strong{color:var(--tp);}.slide-body em{color:var(--green);font-style:normal;}
+.bullet-list{list-style:none;margin:10px 0;padding:0;}
+.bullet-list li{padding:5px 0 5px 20px;position:relative;font-size:14px;color:var(--ts);line-height:1.5;}
+.bullet-list li::before{content:"■";position:absolute;left:0;color:var(--green);font-size:8px;top:9px;}
+.bullet-list li strong{color:var(--tp);}
+.callout{border-left:3px solid var(--gold);padding:12px 16px;background:var(--surface);border-radius:0 8px 8px 0;margin-top:14px;font-size:14px;color:var(--ts);line-height:1.6;}
+.callout strong{color:var(--gold);}
+/* severity badge strip */
+.severity-strip{display:flex;gap:10px;margin-top:16px;}
+.sev-badge{flex:1;border-radius:8px;padding:14px 10px;text-align:center;border:1px solid var(--border);}
+.sev-badge .num{font-family:var(--ftitle);font-weight:700;font-size:28px;margin-bottom:4px;}
+.sev-badge .lbl{font-family:var(--fbody);font-size:11px;color:var(--ts);line-height:1.4;}
+.sev-0{background:rgba(164,202,103,.1);border-color:var(--green);}  .sev-0 .num{color:var(--green);}
+.sev-1{background:rgba(210,168,68,.08);border-color:var(--amber);}  .sev-1 .num{color:var(--amber);}
+.sev-2{background:rgba(210,168,68,.12);border-color:var(--amber);}  .sev-2 .num{color:var(--amber);}
+.sev-3{background:rgba(210,84,68,.1);border-color:var(--red);}      .sev-3 .num{color:var(--red);}
+.sev-4{background:rgba(210,84,68,.18);border-color:var(--red);}     .sev-4 .num{color:var(--red);}
+/* process compare table */
+.proc-table{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+.proc-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
+.proc-card-label{font-family:var(--fbody);font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--blue-b);margin-bottom:6px;}
+.proc-card-title{font-family:var(--ftitle);font-weight:700;font-size:17px;color:var(--tp);margin-bottom:4px;}
+.proc-card-freq{font-family:var(--fbody);font-size:12px;color:var(--green);margin-bottom:10px;font-weight:600;}
+/* threshold indicator */
+.threshold-row{display:flex;align-items:center;gap:12px;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.threshold-num{font-family:var(--ftitle);font-weight:700;font-size:36px;color:var(--red);}
+.threshold-txt{font-family:var(--fbody);font-size:13px;color:var(--ts);line-height:1.5;}
+/* capability table */
+.cap-table{width:100%;border-collapse:collapse;margin-top:16px;font-family:var(--fbody);font-size:13px;}
+.cap-table th{background:var(--raised);color:var(--blue-b);font-weight:600;letter-spacing:.08em;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);}
+.cap-table td{padding:8px 12px;border-bottom:1px solid rgba(30,51,71,.6);color:var(--ts);vertical-align:top;}
+.cap-table td:first-child{color:var(--tp);font-weight:600;}
+.cap-table tr:last-child td{border-bottom:none;}
+/* slide footer */
+.slide-footer{position:absolute;bottom:18px;left:68px;right:68px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--tm);border-top:1px solid var(--border);padding-top:8px;}
+.slide-footer-logo{font-family:var(--ftitle);font-weight:700;font-size:12px;color:var(--blue-b);}
+/* lang badge */
+#lang-badge{position:fixed;top:14px;right:14px;z-index:9999;background:rgba(13,26,38,.92);border:1px solid var(--border);border-radius:999px;padding:6px 14px;display:flex;gap:8px;align-items:center;font-family:var(--ftitle);font-size:13px;font-weight:600;letter-spacing:.08em;backdrop-filter:blur(8px);}
+#lang-badge a{text-decoration:none;padding:2px 6px;border-radius:4px;transition:all .2s;}
+#lang-badge .active{color:var(--green);background:rgba(164,202,103,.14);}
+#lang-badge .inactive{color:var(--tm);}
+#lang-badge .sep{color:var(--border);}
+/* reveal reset */
+.reveal h1,.reveal h2,.reveal h3,.reveal h4{all:unset;display:block;font-family:var(--ftitle);text-transform:none;}
+.reveal .progress{background:rgba(0,110,167,.2);}.reveal .progress span{background:var(--green);}
+.reveal .controls button{color:var(--blue);}
+</style>
+
+</head>
+<body>
+<div id="lang-badge"><a href="../index.html" class="inactive">EN</a><span class="sep">|</span><a href="index.html" class="active">ES</a></div>
+<div class="reveal">
+  <div class="slides">
+<section>
+<div style="position:relative;width:100%;height:100%;">
+  <div class="cover-bg" style="background-image:url('../assets/phyto_slide1_cover_scout_1774404743129.png')"></div>
+  <div class="cover-content">
+    <div class="cover-tag">FarmAgent · Edición Agave &nbsp;·&nbsp; Demostración Tecnológica</div>
+    <div class="cover-headline">Scouting<br>Fitosanitario<br><em style="color:var(--green);font-style:normal;">en un Teléfono.</em></div>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">Una demostración de visión artificial móvil para inspecciones fitosanitarias conformes con SENASICA y CRT — abarcando el Censo Físico Trimestral y el Programa Bimestral de Trampeo de Picudo.</p>
+  </div>
+  <div class="cover-footer">
+    <span class="cover-footer-logo">FarmAgent</span>
+    <span class="cover-footer-conf">FruitScout · Confidential · Para Revisión CRT</span>
+  </div>
+</div></section>
+<section>
+<div class="slide-inner glow-orb">
+  <div class="two-col">
+    <div class="col-text">
+      <div class="slide-tag">Contexto Regulatorio</div>
+      <div class="slide-h1">El CRT Exige Trazabilidad Completa. FarmAgent la Entrega.</div>
+      <div class="slide-rule"></div>
+      <div class="slide-body">
+        <p>El marco fitosanitario de México exige una cadena cerrada y auditable desde el Jardín Madre hasta el Pasaporte de Movimiento — regulada por <strong>SENASICA</strong>, <strong>CRT</strong>, and reported through <strong>SIVEA</strong>.</p>
+        <ul class="bullet-list">
+          <li><strong>Registro de Predio</strong> — Cada lote registrado con número CRT y Folio Geográfico</li>
+          <li><strong>Censo Trimestral</strong> — Mínimo 100 plantas por lote; 1% de muestreo en predios mayores a 5 ha</li>
+          <li><strong>Trampeo Quincenal</strong> — Conteo de picudos por trampa cada 15 días</li>
+          <li><strong>Carga a SIVEA</strong> — Incidencia, severidad, organismo y acciones son campos obligatorios</li>
+          <li><strong>NOM-006-SCFI-2012</strong> — Cumplimiento de especificaciones de Tequila del campo a la botella</li>
+        </ul>
+        <div class="callout">Hoy, la mayoría de los operadores reingresan datos de papel en SIVEA horas o días después de la inspección. <strong>Ese retraso es donde el cumplimiento falla.</strong></div>
+      </div>
+    </div>
+    <div class="col-visual"><img src="../assets/phyto_slide7_sivea_form_1774404818214.png" alt="SIVEA compliance"></div>
+  </div>
+  <div class="slide-footer"><span class="slide-footer-logo">FarmAgent</span><span>FruitScout &nbsp;·&nbsp; 2 / 9</span></div>
+</div></section>
+<section>
+<div class="slide-inner glow-orb">
+  <div class="two-col">
+    <div class="col-text">
+      <div class="slide-tag">Proceso 1 · Censo Físico Trimestral</div>
+      <div class="slide-h1">Clasificación Visual de Enfermedades — En Tiempo Real</div>
+      <div class="slide-rule"></div>
+      <div class="slide-body">
+        <p>El explorador recorre el lote en patrón de zig-zag o X. En cada planta, apunta su smartphone a las pencas y la base de la piña.</p>
+        <ul class="bullet-list">
+          <li><strong>La IA clasifica los síntomas foliares</strong> — manchas grises circulares, amarillamiento apical, lesiones necróticas acuosas — al instante</li>
+          <li><strong>Severidad calificada 0–4</strong> según escala SENASICA, pre-llenada en la bitácora con un solo toque de confirmación</li>
+          <li><strong>Verificación de pudrición del corazón</strong> — el explorador presiona la base de la piña; si está blanda o huele mal, se marca como Foco de Infestación</li>
+          <li><strong>Activación automática al 15%</strong> — el sistema marca el lote para intervención obligatoria cuando la incidencia supera el umbral SENASICA</li>
+        </ul>
+      </div>
+      <div class="severity-strip">
+        <div class="sev-badge sev-0"><div class="num">0</div><div class="lbl">Sano</div></div>
+        <div class="sev-badge sev-1"><div class="num">1</div><div class="lbl">Bajo<br>Manchas</div></div>
+        <div class="sev-badge sev-2"><div class="num">2</div><div class="lbl">Moderado<br>Amarillamiento</div></div>
+        <div class="sev-badge sev-3"><div class="num">3</div><div class="lbl">Severo<br>Pudrición</div></div>
+        <div class="sev-badge sev-4"><div class="num">4</div><div class="lbl">Muerto /<br>Total</div></div>
+      </div>
+    </div>
+    <div class="col-visual"><img src="../assets/phyto_slide3_leaf_inspection_1774404756284.png" alt="Leaf disease inspection"></div>
+  </div>
+  <div class="slide-footer"><span class="slide-footer-logo">FarmAgent</span><span>FruitScout &nbsp;·&nbsp; 3 / 9</span></div>
+</div></section>
+<section>
+<div class="slide-inner glow-orb">
+  <div class="two-col">
+    <div class="col-text">
+      <div class="slide-tag">Tecnología de Visión · Clasificación de Enfermedades</div>
+      <div class="slide-h1">Cuatro Patógenos. Una Cámara. Clasificación Instantánea.</div>
+      <div class="slide-rule"></div>
+      <div class="slide-body">
+        <p>El modelo de Visión general de FarmAgent detecta los cuatro fenotipos de enfermedad primarios bajo diferentes condiciones de luz, etapas de crecimiento y orientaciones foliares.</p>
+        <ul class="bullet-list">
+          <li><em>Asternina mexicana</em> — <strong>manchas grises circulares (mancha gris)</strong> en pencas</li>
+          <li><em>Fusarium oxysporum</em> — <strong>amarillamiento apical (marchitez)</strong>, marchitamiento</li>
+          <li><em>Erwinia carotovora</em> — <strong>lesiones necróticas acuosas</strong>, pudrición blanda en la piña</li>
+          <li><em>Scyphophorus sp.</em> — <strong>orificios de entrada</strong>, indicadores de corazón hueco</li>
+        </ul>
+        <div class="callout">El modelo no reemplaza el juicio del explorador — lo amplifica. Un censo de 100 plantas que antes tomaba 4–5 horas ahora puede completarse y documentarse en menos de <strong>2.5 horas</strong>, con cadena de custodia digital completa.</div>
+      </div>
+    </div>
+    <div class="col-visual"><img src="../assets/phyto_slide4_disease_grid_1774404772679.png" alt="Disease grade grid"></div>
+  </div>
+  <div class="slide-footer"><span class="slide-footer-logo">FarmAgent</span><span>FruitScout &nbsp;·&nbsp; 4 / 9</span></div>
+</div></section>
+<section>
+<div class="slide-inner glow-orb">
+  <div class="two-col">
+    <div class="col-text">
+      <div class="slide-tag">Proceso 2 · Detección de Objetos YOLO · Trampeo Quincenal</div>
+      <div class="slide-h1">Conteo Automatizado de Picudos — 3 Segundos por Trampa</div>
+      <div class="slide-rule"></div>
+      <div class="slide-body">
+        <p>Las trampas tipo balde y sándwich cebadas con feromonas se inspeccionan cada 15 días. El conteo manual es tedioso y depende del operador.</p>
+        <p>FarmAgent aplica un <strong>modelo de detección de objetos YOLO en tiempo real</strong> entrenado específicamente en <em>Scyphophorus acupunctatus</em> — el Picudo del Agave — que cuenta cada insecto adulto en la trampa desde una sola fotografía.</p>
+        <ul class="bullet-list">
+          <li>Distingue picudos adultos de residuos, hormigas y otros insectos</li>
+          <li>El conteo se registra automáticamente en el ID de trampa y Folio Geográfico</li>
+          <li>Picudos por trampa por día calculados en tiempo real</li>
+        </ul>
+      </div>
+      <div class="threshold-row">
+        <div class="threshold-num">&gt; 1.0</div>
+        <div class="threshold-txt"><strong>Umbral de Acción SENASICA</strong><br>Picudos / trampa / día activa intervención química obligatoria. FarmAgent lo señala automáticamente en cada inspección.</div>
+      </div>
+    </div>
+    <div class="col-visual"><img src="../assets/phyto_slide5_yolo_weevil_1774404786679.png" alt="YOLO weevil detection"></div>
+  </div>
+  <div class="slide-footer"><span class="slide-footer-logo">FarmAgent</span><span>FruitScout &nbsp;·&nbsp; 5 / 9</span></div>
+</div></section>
+<section>
+<div class="slide-inner glow-orb">
+  <div class="two-col">
+    <div class="col-text">
+      <div class="slide-tag">Función de Plataforma · Localizador Visual y GPS</div>
+      <div class="slide-h1">Cada Observación — Fijada por GPS, Verificada por Foto, Auditable</div>
+      <div class="slide-rule"></div>
+      <div class="slide-body">
+        <p>Cada calificación de enfermedad, conteo de picudo, fotografía e identidad del explorador se ancla a una coordenada GPS en tiempo real — dentro de 3 metros de la planta afectada.</p>
+        <ul class="bullet-list">
+          <li><strong>Registro de inspección espacialmente explícito</strong> — el inspector del CRT puede ver exactamente qué plantas fueron revisadas y cuándo</li>
+          <li><strong>Visualización de Foco de Infestación</strong> — las zonas calientes aparecen en el mapa antes de que el explorador termine el lote</li>
+          <li><strong>Cadena de custodia fotográfica</strong> — con marca de tiempo, atribuida al explorador, disponible para auditoría CRT en cualquier momento</li>
+          <li><strong>Generación de ID de muestra</strong> — fecha, GPS, colector e ID de lote agrupados automáticamente para envío al laboratorio</li>
+        </ul>
+        <div class="callout">El inspector del CRT llega a la propiedad y encuentra el registro digital completo ya cargado — cada lote, cada fecha de inspección, cada fotografía — <strong>listo para revisión.</strong></div>
+      </div>
+    </div>
+    <div class="col-visual"><img src="../assets/phyto_slide6_gps_map_1774404801961.png" alt="GPS map with disease pins"></div>
+  </div>
+  <div class="slide-footer"><span class="slide-footer-logo">FarmAgent</span><span>FruitScout &nbsp;·&nbsp; 6 / 9</span></div>
+</div></section>
+<section>
+<div class="slide-inner glow-orb">
+  <div class="two-col">
+    <div class="col-text">
+      <div class="slide-tag">Integración SIVEA · Reporte Automático</div>
+      <div class="slide-h1">El Reporte SIVEA se Construye Durante la Inspección — No Después</div>
+      <div class="slide-rule"></div>
+      <div class="slide-body">
+        <p>Cuando la inspección trimestral concluye, FarmAgent calcula la incidencia automáticamente y pre-llena los campos requeridos por SIVEA:</p>
+        <ul class="bullet-list">
+          <li><strong>Folio Geográfico</strong> — ID del predio vinculado a GPS</li>
+          <li><strong>Organismo Plaga</strong> — nombre científico de cada plaga detectada</li>
+          <li><strong>Hospedante</strong> — <em>Agave tequilana Weber</em></li>
+          <li><strong>Nivel de Infestación</strong> — % de incidencia vs. puntuación de severidad, calculado automáticamente</li>
+          <li><strong>Acciones Fitosanitarias</strong> — intervención registrada y vinculada al número de agroservicios CRT</li>
+        </ul>
+        <div class="callout">Si <strong>≥ 15% de las plantas muestran baja severidad</strong> o <strong>≥ 8% muestran alta severidad</strong>, el sistema declara automáticamente un Foco de Infestación y notifica al Subcomité Fitosanitario local.</div>
+      </div>
+    </div>
+    <div class="col-visual"><img src="../assets/phyto_slide7_sivea_form_1774404818214.png" alt="SIVEA compliance form"></div>
+  </div>
+  <div class="slide-footer"><span class="slide-footer-logo">FarmAgent</span><span>FruitScout &nbsp;·&nbsp; 7 / 9</span></div>
+</div></section>
+<section>
+<div class="slide-inner glow-orb">
+  <div class="slide-tag">Resumen Tecnológico</div>
+  <div class="slide-h1">Capacidades de Visión FarmAgent — Referencia CRT</div>
+  <div class="slide-rule"></div>
+  <table class="cap-table">
+    <tr><th>Capability</th><th>Technology</th><th>Application</th></tr>
+    <tr><td>Clasificación de enfermedades foliares</td><td>Visión por Computadora General</td><td>Severidad 0–4, 4 patógenos primarios</td></tr>
+    <tr><td>Conteo de picudo del agave</td><td>Detección de objetos YOLO</td><td>Conteo en tiempo real por trampa por inspección</td></tr>
+    <tr><td>Fijación GPS a nivel de planta</td><td>Localizador Visual</td><td>Cada observación dentro de 3m de precisión</td></tr>
+    <tr><td>Mapeo de campo SIVEA</td><td>Integración con Folio Geográfico</td><td>Pre-llena todos los campos regulatorios requeridos</td></tr>
+    <tr><td>Declaración de Foco de Infestación</td><td>Motor de umbrales SENASICA</td><td>Auto-señalización 15% / 8% + notificación al Subcomité</td></tr>
+    <tr><td>Cadena de custodia fotográfica</td><td>Registro con marca de tiempo atribuido al explorador</td><td>Disponible para auditoría CRT en cualquier momento</td></tr>
+    <tr><td>Verificación de Intervalo Pre-Cosecha</td><td>Cumplimiento del Intervalo Pre-Cosecha</td><td>Aplicaciones químicas bloqueadas antes de la autorización de cosecha</td></tr>
+  </table>
+  <div class="slide-footer"><span class="slide-footer-logo">FarmAgent</span><span>FruitScout &nbsp;·&nbsp; 8 / 9</span></div>
+</div></section>
+<section>
+<div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;">
+  <div class="cover-bg" style="background-image:url('../assets/phyto_slide8_handshake_1774404834393.png')"></div>
+  <div style="position:absolute;inset:0;background:rgba(8,14,20,.76);"></div>
+  <div style="position:relative;z-index:2;padding:48px;max-width:700px;">
+    <div style="font-family:var(--ftitle);font-weight:200;font-size:52px;color:var(--tp);line-height:1.25;margin-bottom:18px;">
+      La cadena es completa,<br>trazable y <em style="color:var(--green);font-style:normal;">comprobable.</em>
+    </div>
+    <div class="cover-rule" style="margin:0 auto 22px;"></div>
+    <p style="font-family:var(--fbody);font-size:16px;color:var(--ts);line-height:1.65;margin:0 0 32px;">
+      Invitamos al CRT a ejecutar un piloto supervisado en un lote registrado — con su inspector de campo presente — para validar los datos de FarmAgent contra sus propias observaciones de referencia.
+    </p>
+    <a href="mailto:sales@fruitscout.ai" style="display:inline-block;background:var(--blue);color:#fff;font-family:var(--fbody);font-size:16px;font-weight:600;padding:14px 40px;border-radius:8px;text-decoration:none;letter-spacing:.04em;">
+      Solicitar un Piloto Supervisado
+    </a>
+    <div style="margin-top:24px;font-family:var(--fbody);font-size:12px;color:var(--tm);">
+      sales@fruitscout.ai &nbsp;·&nbsp; fruitscout.ai/farmagent
+    </div>
+    <div style="margin-top:14px;font-family:var(--ftitle);font-weight:700;font-size:15px;color:var(--blue-b);">FarmAgent</div>
+  </div>
+</div></section>
+
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script>
+Reveal.initialize({
+  hash: true, transition: 'fade', transitionSpeed: 'default',
+  backgroundTransition: 'fade', progress: true, controls: true,
+  slideNumber: false, center: false, disableLayout: true, margin: 0,
+});
+</script>
+</body>
+</html>
